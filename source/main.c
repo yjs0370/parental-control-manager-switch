@@ -66,6 +66,7 @@ static bool ensure_safety_level_for_timer(void);
 static Result pctl_force_enable_play_timer(const u16 days_min[7]);
 static Result pctl_force_enable_play_timer_uniform(u16 minutes);
 static void menuForceEnablePlayTimer(void);
+static void consoleFlush(void);
 
 static Result pctl_ops_reinit(void)
 {
