@@ -8,15 +8,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: devkitpro/devkitpro:latest
 
     steps:
+      - name: Install devkitPro
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gdebi-core wget
+          wget https://github.com/devkitPro/pacman/releases/download/devkitpro-pacman-1.0.1/devkitpro-pacman-1.0.1-linux.tar.gz
+          tar xf devkitpro-pacman-1.0.1-linux.tar.gz
+          sudo gdebi -n devkitpro-pacman_1.0.1_amd64.deb
+          sudo dkp-pacman -Sy
+          sudo dkp-pacman -S switch-dev switch-libnx switch-sdl2 switch-sdl2_mixer switch-sdl2_ttf switch-sdl2_image switch-curl switch-mbedtls switch-zlib
+
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Compile
-        shell: bash
         run: |
           export DEVKITPRO=/opt/devkitpro
           cd $GITHUB_WORKSPACE
