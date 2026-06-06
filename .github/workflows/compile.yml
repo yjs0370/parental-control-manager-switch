@@ -1,0 +1,32 @@
+name: Compile Switch NRO
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitarm:latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Compile
+        shell: bash
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          cd $GITHUB_WORKSPACE
+          make -j$(nproc)
+
+      - name: Upload NRO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: parental-control-manager
+          path: |
+            parental_control_manager.nro
+            parental_control_manager.elf
+          if-no-files-found: error
