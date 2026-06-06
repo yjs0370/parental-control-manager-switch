@@ -8,26 +8,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: devkitpro/devkitarm:latest
-
     steps:
-      - name: Install libnx
-        shell: bash
-        run: |
-          export DEVKITPRO=/opt/devkitpro
-          sudo -E dkp-pacman -Sy --noconfirm
-          sudo -E dkp-pacman -S --noconfirm switch-libnx switch-sdl2 switch-sdl2_mixer switch-sdl2_ttf switch-sdl2_image switch-curl switch-mbedtls switch-zlib
+      - uses: actions/checkout@v4
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Compile
-        shell: bash
-        run: |
-          export DEVKITPRO=/opt/devkitpro
-          cd $GITHUB_WORKSPACE
-          make -j$(nproc)
+      - name: Build .nro
+        run: docker run --rm -v "$PWD:/project" -w /project devkitpro/devkita64 make
 
       - name: Upload NRO artifact
         uses: actions/upload-artifact@v4
