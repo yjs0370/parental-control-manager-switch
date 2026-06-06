@@ -1,4 +1,4 @@
-﻿// Switch Parental Control Manager v12.0
+// Switch Parental Control Manager v12.0
 // =============================================================
 // Pure .nro homebrew app — no sysmodule required
 //
@@ -292,14 +292,24 @@ static Result pctl_force_enable_play_timer(const u16 days_min[7])
     Result rc = serviceDispatchIn(pctlGetServiceSession_Service(), 195101, c);
     
     if (R_SUCCEEDED(rc)) {
-        // Step 3: Try to activate today's restriction by toggling
-        // First try unlock (may fail with 1088E — that's OK)
+        // Step 3: Start the Play Timer! (cmd 1451)
+        // SetPlayTimerSettingsForDebug only WRITES config —
+        // StartPlayTimer actually ACTIVATES the countdown.
+        Service *srv2 = pctlGetServiceSession_Service();
+        Result rc_start = serviceDispatch(srv2, 1451);
+        if (R_SUCCEEDED(rc_start)) {
+            printf("   Play Timer STARTED (cmd 1451)!\n");
+            consoleFlush();
+        } else {
+            printf("   StartPlayTimer: 0x%08X (may need game launch)\n", (unsigned)rc_start);
+            consoleFlush();
+        }
+        
+        // Step 4: Try unlock (may fail with 1088E — that's OK)
         Result rc2 = pctl_unlock_restriction_temporarily();
         if (R_FAILED(rc2)) {
-            printf("   (Unlock skipped: 0x%08X — continuing)\n", (unsigned)rc2);
+            printf("   (Unlock skipped: 0x%08X)\n", (unsigned)rc2);
             consoleFlush();
-            // Even without unlock, the timer settings should be written
-            // The key fix is Safety Level + proper struct write
         }
     }
     
